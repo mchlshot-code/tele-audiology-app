@@ -1,6 +1,7 @@
 "use server"
 
 import { createSupabaseServerClient } from "@/lib/supabase-server"
+import { adminRoles } from "@/features/admin/constants/admin-roles"
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string }
 
@@ -152,8 +153,6 @@ type AdminUser = {
   is_admin: boolean
   admin_role: string | null
 }
-
-const adminRoles = ["super_admin", "admin", "content_manager", "viewer"] as const
 
 const getAdminProfile = async () => {
   const supabase = createSupabaseServerClient()

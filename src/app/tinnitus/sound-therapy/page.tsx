@@ -26,7 +26,7 @@ export default async function SoundTherapyPage() {
               </p>
             </div>
             <Button asChild variant="outline" className="border-emerald-200 text-emerald-700">
-              <Link href="/tinnitus/screener">Back to tinnitus dashboard</Link>
+              <Link href="/tinnitus/screener">Back to tinnitus screener</Link>
             </Button>
           </div>
 

@@ -3,8 +3,7 @@ import { redirect } from "next/navigation"
 import type { ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { createSupabaseServerClient } from "@/lib/supabase-server"
-
-const adminRoles = ["super_admin", "admin", "content_manager", "viewer"]
+import { adminRoles } from "@/features/admin/constants/admin-roles"
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const supabase = createSupabaseServerClient()
