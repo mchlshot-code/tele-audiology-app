@@ -5,6 +5,7 @@ export {
   saveOutcomeAssessment,
   saveSoundMaskingSession,
   getTreatmentRecommendation,
+  getLatestTreatmentPlan,
 } from "@/features/tinnitus/actions/tinnitus-actions"
 export {
   tinnitusScreenerSchema,

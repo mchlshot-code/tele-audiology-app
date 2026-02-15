@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Link from "next/link"
 import { useForm, Controller, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
@@ -17,6 +18,12 @@ export default function TinnitusAndHearingSurvey() {
   const [isPending, startTransition] = useTransition()
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [assessmentResult, setAssessmentResult] = useState<{
+    assessmentId: string
+    impact: string
+    recommendedStep: string
+    recommendation: string
+  } | null>(null)
 
   const {
     register,
@@ -37,6 +44,7 @@ export default function TinnitusAndHearingSurvey() {
   const onSubmit = (values: THSInput) => {
     setErrorMessage(null)
     setSuccessMessage(null)
+    setAssessmentResult(null)
     startTransition(async () => {
       const result = await submitTHS(values)
       if (!result.success) {
@@ -44,6 +52,9 @@ export default function TinnitusAndHearingSurvey() {
         return
       }
       setSuccessMessage("Assessment saved. Your impact level is ready in the treatment plan.")
+      if (result.data) {
+        setAssessmentResult(result.data as typeof assessmentResult)
+      }
     })
   }
 
@@ -143,6 +154,23 @@ export default function TinnitusAndHearingSurvey() {
           {successMessage && (
             <Alert className="border-emerald-200 bg-emerald-50 text-emerald-700">
               {successMessage}
+            </Alert>
+          )}
+          {assessmentResult && (
+            <Alert className="border-sky-200 bg-sky-50 text-slate-700">
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">
+                  Recommended PTM step: {assessmentResult.recommendedStep}
+                </p>
+                <p className="text-sm">Impact level: {assessmentResult.impact}</p>
+                <p className="text-sm">{assessmentResult.recommendation}</p>
+                <Button
+                  asChild
+                  className="mt-2 rounded-full bg-sky-600 hover:bg-sky-700"
+                >
+                  <Link href="/tinnitus/treatment">View treatment plan</Link>
+                </Button>
+              </div>
             </Alert>
           )}
           {errorMessage && (

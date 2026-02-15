@@ -21,6 +21,14 @@ type ActionResult =
 type ImpactLevel = "none" | "mild" | "moderate" | "severe" | "catastrophic"
 type RecommendedStep = "step_2" | "step_3" | "step_4" | "step_5" | "step_6"
 
+const recommendationMap: Record<RecommendedStep, string> = {
+  step_2: "Education and reassurance with self-management resources.",
+  step_3: "Structured counseling and hearing screening follow-up.",
+  step_4: "Sound therapy with masking and relaxation guidance.",
+  step_5: "Advanced counseling support and multidisciplinary review.",
+  step_6: "Comprehensive management with clinical referral.",
+}
+
 function calculateImpactLevel(input: TinnitusImpactInput) {
   const total =
     input.thsSectionAScore +
@@ -70,9 +78,9 @@ export async function submitScreener(data: unknown): Promise<ActionResult> {
   }
 }
 
-export async function submitTHS(data: unknown): Promise<ActionResult> {
+export async function submitTHS(formData: unknown): Promise<ActionResult> {
   try {
-    const validated = thsSchema.parse(data)
+    const validated = thsSchema.parse(formData)
     const supabase = createSupabaseServerClient()
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
@@ -82,22 +90,34 @@ export async function submitTHS(data: unknown): Promise<ActionResult> {
 
     const impact = calculateImpactLevel(validated)
 
-    const { error } = await supabase.from("tinnitus_assessments").insert({
-      user_id: userData.user.id,
-      screening_id: validated.screeningId,
-      ths_section_a_score: validated.thsSectionAScore,
-      ths_section_b_score: validated.thsSectionBScore,
-      ths_section_c_screening: validated.thsSectionCScreening,
-      ths_section_d_score: validated.thsSectionDScore,
-      tinnitus_impact: impact.impact,
-      recommended_step: impact.recommendedStep,
-    })
+    const { data, error } = await supabase
+      .from("tinnitus_assessments")
+      .insert({
+        user_id: userData.user.id,
+        screening_id: validated.screeningId,
+        ths_section_a_score: validated.thsSectionAScore,
+        ths_section_b_score: validated.thsSectionBScore,
+        ths_section_c_screening: validated.thsSectionCScreening,
+        ths_section_d_score: validated.thsSectionDScore,
+        tinnitus_impact: impact.impact,
+        recommended_step: impact.recommendedStep,
+      })
+      .select("id, tinnitus_impact, recommended_step")
+      .single()
 
-    if (error) {
-      return { success: false, error: error.message }
+    if (error || !data) {
+      return { success: false, error: error?.message ?? "Unable to save assessment." }
     }
 
-    return { success: true, data: impact }
+    return {
+      success: true,
+      data: {
+        assessmentId: data.id,
+        impact: data.tinnitus_impact,
+        recommendedStep: data.recommended_step,
+        recommendation: recommendationMap[impact.recommendedStep],
+      },
+    }
   } catch (error) {
     console.error("Error in submitTHS:", error)
     return { success: false, error: "Something went wrong" }
@@ -167,14 +187,6 @@ export async function getTreatmentRecommendation(
       return { success: false, error: "Assessment not found." }
     }
 
-    const recommendationMap: Record<RecommendedStep, string> = {
-      step_2: "Education and reassurance with self-management resources.",
-      step_3: "Structured counseling and hearing screening follow-up.",
-      step_4: "Sound therapy with masking and relaxation guidance.",
-      step_5: "Advanced counseling support and multidisciplinary review.",
-      step_6: "Comprehensive management with clinical referral.",
-    }
-
     const step = data.recommended_step as RecommendedStep
     const impact = data.tinnitus_impact as ImpactLevel
 
@@ -188,6 +200,45 @@ export async function getTreatmentRecommendation(
     }
   } catch (error) {
     console.error("Error in getTreatmentRecommendation:", error)
+    return { success: false, error: "Something went wrong" }
+  }
+}
+
+export async function getLatestTreatmentPlan(): Promise<{ success: true; data: { assessmentId: string; impact: ImpactLevel; step: RecommendedStep; recommendation: string } } | { success: false; error: string }> {
+  try {
+    const supabase = createSupabaseServerClient()
+    const { data: userData, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !userData.user) {
+      return { success: false, error: "Please sign in to view your plan." }
+    }
+
+    const { data, error } = await supabase
+      .from("tinnitus_assessments")
+      .select("id, tinnitus_impact, recommended_step, created_at")
+      .eq("user_id", userData.user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single()
+
+    if (error || !data) {
+      return { success: false, error: "No assessment found yet." }
+    }
+
+    const step = data.recommended_step as RecommendedStep
+    const impact = data.tinnitus_impact as ImpactLevel
+
+    return {
+      success: true,
+      data: {
+        assessmentId: data.id,
+        impact,
+        step,
+        recommendation: recommendationMap[step],
+      },
+    }
+  } catch (error) {
+    console.error("Error in getLatestTreatmentPlan:", error)
     return { success: false, error: "Something went wrong" }
   }
 }
