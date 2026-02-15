@@ -34,10 +34,19 @@ export default async function AdminLayout({ children }: { children: ReactNode })
               <Link href="/admin/content">Content</Link>
             </Button>
             <Button asChild variant="outline" className="border-emerald-200 text-emerald-700">
+              <Link href="/admin/triage">Hearing Risk</Link>
+            </Button>
+            <Button asChild variant="outline" className="border-emerald-200 text-emerald-700">
+              <Link href="/admin/consultations">Consultations</Link>
+            </Button>
+            <Button asChild variant="outline" className="border-emerald-200 text-emerald-700">
               <Link href="/admin/products">Products</Link>
             </Button>
             <Button asChild variant="outline" className="border-emerald-200 text-emerald-700">
               <Link href="/admin/orders">Orders</Link>
+            </Button>
+            <Button asChild variant="outline" className="border-emerald-200 text-emerald-700">
+              <Link href="/admin/tinnitus">Tinnitus</Link>
             </Button>
             <Button asChild variant="ghost" className="text-slate-600">
               <Link href="/">Back to site</Link>
