@@ -120,6 +120,73 @@ If you think you may have a medical emergency, call your doctor immediately.
 `
 ```
 
+## Admin CMS Module
+
+### Admin Authentication & Authorization
+
+**Admin Roles:**
+- `super_admin` - Full access to everything
+- `admin` - Manage products, orders, consultations
+- `content_manager` - Edit educational content only
+- `viewer` - Read-only access to analytics
+
+**Database schema additions:**
+```sql
+-- Add is_admin and admin_role to users table
+ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT false;
+ALTER TABLE users ADD COLUMN admin_role TEXT CHECK (admin_role IN ('super_admin', 'admin', 'content_manager', 'viewer'));
+
+-- Admin activity logs (audit trail)
+CREATE TABLE admin_activity_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  admin_id UUID REFERENCES users(id),
+  action TEXT NOT NULL,
+  resource_type TEXT,
+  resource_id UUID,
+  details JSONB,
+  ip_address TEXT,
+  created_at TIMESTAMP DEFAULT now()
+);
+
+-- Site settings (configurable from admin)
+CREATE TABLE site_settings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  setting_key TEXT UNIQUE NOT NULL,
+  setting_value JSONB,
+  updated_by UUID REFERENCES users(id),
+  updated_at TIMESTAMP DEFAULT now()
+);
+
+-- Educational content (blog posts, guides)
+CREATE TABLE content (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  content TEXT,
+  content_type TEXT CHECK (content_type IN ('blog_post', 'guide', 'faq', 'page')),
+  status TEXT CHECK (status IN ('draft', 'published', 'archived')) DEFAULT 'draft',
+  featured_image_url TEXT,
+  author_id UUID REFERENCES users(id),
+  published_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
+```
+
+**RLS Policies for Admin:**
+- Only users with `is_admin = true` can access admin tables
+- All admin actions are logged to `admin_activity_logs`
+- Regular users CANNOT see admin data
+
+**Admin Module Requirements:**
+1. Protected admin routes (only accessible to admins)
+2. Dashboard with key metrics (sales, users, orders)
+3. CRUD interfaces for all resources
+4. File upload for product images
+5. Rich text editor for content
+6. Data export functionality (CSV, Excel)
+7. Real-time notifications for new orders
+
 ### Data Protection (NDPA 2023 Compliance):
 
 1. **Encryption**: All user health data must be encrypted at rest and in transit
