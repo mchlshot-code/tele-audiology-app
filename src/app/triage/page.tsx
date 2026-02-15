@@ -1,5 +1,4 @@
 import { RiskCalculatorCard } from "@/features/triage"
-import { MEDICAL_DISCLAIMER } from "@/shared/lib/medical-disclaimer"
 
 export default function TriagePage() {
   return (
@@ -17,11 +16,6 @@ export default function TriagePage() {
               This screening helps you decide whether a professional hearing test
               would be helpful. Your answers remain private.
             </p>
-            <div className="rounded-2xl border border-emerald-100 bg-white p-4 text-xs text-emerald-900">
-              <p className="whitespace-pre-line leading-relaxed">
-                {MEDICAL_DISCLAIMER}
-              </p>
-            </div>
           </div>
           <RiskCalculatorCard />
         </div>

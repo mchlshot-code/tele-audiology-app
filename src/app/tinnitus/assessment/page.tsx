@@ -1,6 +1,4 @@
 import { TinnitusAndHearingSurvey, TinnitusInterview } from "@/features/tinnitus"
-import { Alert } from "@/components/ui/alert"
-import { MEDICAL_DISCLAIMER } from "@/shared/lib/medical-disclaimer"
 
 export default function TinnitusAssessmentPage() {
   return (
@@ -18,9 +16,6 @@ export default function TinnitusAssessmentPage() {
             <TinnitusAndHearingSurvey />
             <TinnitusInterview />
           </div>
-          <Alert className="border-sky-200 bg-sky-50 text-slate-700">
-            <p className="whitespace-pre-line text-sm leading-relaxed">{MEDICAL_DISCLAIMER}</p>
-          </Alert>
         </div>
       </div>
     </div>

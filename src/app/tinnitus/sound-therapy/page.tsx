@@ -5,7 +5,6 @@ import { Alert } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { createSupabaseServerClient } from "@/lib/supabase-server"
-import { MEDICAL_DISCLAIMER } from "@/shared/lib/medical-disclaimer"
 
 export default async function SoundTherapyPage() {
   const supabase = createSupabaseServerClient()
@@ -82,9 +81,6 @@ export default async function SoundTherapyPage() {
             <SoundMaskingPlayer />
           </div>
 
-          <Alert className="border-sky-200 bg-sky-50 text-slate-700">
-            <p className="whitespace-pre-line text-sm leading-relaxed">{MEDICAL_DISCLAIMER}</p>
-          </Alert>
         </div>
       </div>
     </div>

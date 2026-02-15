@@ -2,8 +2,6 @@ import Link from "next/link"
 import { HeartPulse, Stethoscope, ShoppingBag, ClipboardCheck, CalendarCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert } from "@/components/ui/alert"
-import { MEDICAL_DISCLAIMER } from "@/shared/lib/medical-disclaimer"
 
 export default function Home() {
   return (
@@ -98,14 +96,6 @@ export default function Home() {
               </CardContent>
             </Card>
           </div>
-        </section>
-
-        <section className="mt-16">
-          <Alert className="border-sky-200 bg-sky-50 text-slate-700">
-            <p className="whitespace-pre-line text-sm font-medium leading-relaxed">
-              {MEDICAL_DISCLAIMER}
-            </p>
-          </Alert>
         </section>
 
         <footer className="mt-16 flex flex-col gap-4 border-t border-emerald-100 pt-6 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">

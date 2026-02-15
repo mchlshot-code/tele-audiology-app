@@ -1,6 +1,5 @@
 import Link from "next/link"
 import { SignupForm } from "@/features/auth"
-import { MEDICAL_DISCLAIMER } from "@/shared/lib/medical-disclaimer"
 
 export default function SignupPage() {
   return (
@@ -18,11 +17,6 @@ export default function SignupPage() {
               We only collect essential information to personalize your screening and
               consultation experience.
             </p>
-            <div className="rounded-2xl border border-emerald-100 bg-white p-4 text-xs text-emerald-900">
-              <p className="whitespace-pre-line leading-relaxed">
-                {MEDICAL_DISCLAIMER}
-              </p>
-            </div>
             <p className="text-sm text-slate-600">
               Already have an account?{" "}
               <Link href="/login" className="font-semibold text-emerald-700">
