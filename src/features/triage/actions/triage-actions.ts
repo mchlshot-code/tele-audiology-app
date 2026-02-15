@@ -9,7 +9,7 @@ import {
 type RiskLevel = "low" | "moderate" | "high"
 
 type ActionResult =
-  | { success: true; riskLevel: RiskLevel }
+  | { success: true; riskLevel: RiskLevel; saved: boolean }
   | { success: false; error: string }
 
 function getRiskLevel(input: TriageAssessmentInput): RiskLevel {
@@ -45,7 +45,7 @@ export async function calculateRisk(formData: unknown): Promise<ActionResult> {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
-      return { success: false, error: "Please sign in to save your assessment." }
+      return { success: true, riskLevel, saved: false }
     }
 
     const { error } = await supabase.from("hearing_assessments").insert({
@@ -69,7 +69,7 @@ export async function calculateRisk(formData: unknown): Promise<ActionResult> {
       return { success: false, error: error.message }
     }
 
-    return { success: true, riskLevel }
+    return { success: true, riskLevel, saved: true }
   } catch {
     return { success: false, error: "Something went wrong" }
   }

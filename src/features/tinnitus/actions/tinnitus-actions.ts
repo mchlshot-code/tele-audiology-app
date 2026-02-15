@@ -50,7 +50,7 @@ export async function submitScreener(data: unknown): Promise<ActionResult> {
     const { data: userData, error: userError } = await supabase.auth.getUser()
 
     if (userError || !userData.user) {
-      return { success: false, error: "Please sign in to save your screening." }
+      return { success: true, data: { saved: false } }
     }
 
     const { error } = await supabase.from("tinnitus_screenings").insert({
@@ -63,7 +63,7 @@ export async function submitScreener(data: unknown): Promise<ActionResult> {
       return { success: false, error: error.message }
     }
 
-    return { success: true }
+    return { success: true, data: { saved: true } }
   } catch (error) {
     console.error("Error in submitScreener:", error)
     return { success: false, error: "Something went wrong" }

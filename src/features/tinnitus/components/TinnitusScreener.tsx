@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
+import Link from "next/link"
 import { useForm, Controller, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader2 } from "lucide-react"
@@ -20,6 +21,7 @@ export default function TinnitusScreener() {
   const [isPending, startTransition] = useTransition()
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [isSaved, setIsSaved] = useState<boolean | null>(null)
 
   const {
     register,
@@ -42,13 +44,20 @@ export default function TinnitusScreener() {
   const onSubmit = (values: TinnitusScreenerInput) => {
     setErrorMessage(null)
     setSuccessMessage(null)
+    setIsSaved(null)
     startTransition(async () => {
       const result = await submitScreener(values)
       if (!result.success) {
         setErrorMessage(result.error)
         return
       }
-      setSuccessMessage("Screening saved. You can continue to the full assessment.")
+      const saved = Boolean(result.data?.saved)
+      setIsSaved(saved)
+      setSuccessMessage(
+        saved
+          ? "Screening saved. You can continue to the full assessment."
+          : "Screening complete. Sign in to save your comprehensive report."
+      )
       reset(values)
     })
   }
@@ -227,6 +236,23 @@ export default function TinnitusScreener() {
             <Alert className="border-emerald-200 bg-emerald-50 text-emerald-700">
               {successMessage}
             </Alert>
+          )}
+          {isSaved === false && (
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button
+                asChild
+                className="w-full rounded-full bg-emerald-600 hover:bg-emerald-700 sm:w-auto"
+              >
+                <Link href="/login">Sign in</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                className="w-full rounded-full border-emerald-200 text-emerald-700 sm:w-auto"
+              >
+                <Link href="/signup">Create account</Link>
+              </Button>
+            </div>
           )}
           {errorMessage && (
             <Alert className="border-rose-200 bg-rose-50 text-rose-700">

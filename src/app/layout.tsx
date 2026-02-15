@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import localFont from "next/font/local";
+import { redirect } from "next/navigation";
 import { MEDICAL_DISCLAIMER } from "@/shared/lib/medical-disclaimer";
+import { logout } from "@/features/auth/actions/auth-actions";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -20,11 +23,21 @@ export const metadata: Metadata = {
   description: "Accessible hearing care, triage, and consultations across Nigeria.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = createSupabaseServerClient();
+  const { data: userData } = await supabase.auth.getUser();
+  const hasSession = Boolean(userData.user);
+
+  async function signOutAction() {
+    "use server";
+    await logout();
+    redirect("/");
+  }
+
   return (
     <html lang="en">
       <body
@@ -55,12 +68,30 @@ export default function RootLayout({
                 <Link href="/shop" className="rounded-full px-3 py-1 hover:bg-emerald-50 hover:text-emerald-800">
                   Shop
                 </Link>
-                <Link href="/login" className="rounded-full px-3 py-1 text-emerald-700 hover:bg-emerald-50">
-                  Sign In
-                </Link>
-                <Link href="/signup" className="rounded-full bg-emerald-600 px-4 py-1 text-white hover:bg-emerald-700">
-                  Get Started
-                </Link>
+                {hasSession ? (
+                  <>
+                    <Link href="/dashboard" className="rounded-full px-3 py-1 text-emerald-700 hover:bg-emerald-50">
+                      Dashboard
+                    </Link>
+                    <form action={signOutAction}>
+                      <button
+                        type="submit"
+                        className="rounded-full border border-emerald-200 px-4 py-1 text-emerald-700 hover:bg-emerald-50"
+                      >
+                        Sign Out
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/login" className="rounded-full px-3 py-1 text-emerald-700 hover:bg-emerald-50">
+                      Sign In
+                    </Link>
+                    <Link href="/signup" className="rounded-full bg-emerald-600 px-4 py-1 text-white hover:bg-emerald-700">
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </nav>
             </div>
           </header>

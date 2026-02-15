@@ -30,7 +30,7 @@ type RiskLevel = "low" | "moderate" | "high"
 
 export default function RiskCalculatorCard() {
   const [stepIndex, setStepIndex] = useState(0)
-  const [riskLevel, setRiskLevel] = useState<RiskLevel | null>(null)
+  const [result, setResult] = useState<{ riskLevel: RiskLevel; saved: boolean } | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -85,19 +85,25 @@ export default function RiskCalculatorCard() {
         setErrorMessage(result.error)
         return
       }
-      setRiskLevel(result.riskLevel)
+      setResult({ riskLevel: result.riskLevel, saved: result.saved })
     })
   }
 
   const resetAssessment = () => {
-    setRiskLevel(null)
+    setResult(null)
     setErrorMessage(null)
     setStepIndex(0)
     reset(getValues())
   }
 
-  if (riskLevel) {
-    return <RiskResultCard riskLevel={riskLevel} onReset={resetAssessment} />
+  if (result) {
+    return (
+      <RiskResultCard
+        riskLevel={result.riskLevel}
+        isGated={!result.saved}
+        onReset={resetAssessment}
+      />
+    )
   }
 
   return (
