@@ -1,6 +1,7 @@
 "use server"
 
 import { createSupabaseServerClient } from "@/lib/supabase-server"
+import { getURL } from "@/lib/utils"
 import { loginSchema, signupSchema } from "@/features/auth/schemas/auth-schema"
 
 type ActionResult = { success: true; message?: string } | { success: false; error: string }
@@ -33,6 +34,7 @@ export async function signup(formData: unknown): Promise<ActionResult> {
           full_name: validated.fullName,
           phone: validated.phone,
         },
+        emailRedirectTo: `${getURL()}/auth/callback`,
       },
     })
 

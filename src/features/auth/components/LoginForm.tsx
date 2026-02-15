@@ -37,7 +37,7 @@ export default function LoginForm() {
         setErrorMessage(result.error)
         return
       }
-      router.push("/dashboard")
+      router.push("/")
     })
   }
 
